@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+```
+
+### `client/public/.gitignore`
+```
+# Ignore files
+.DS_Store
+Thumbs.db

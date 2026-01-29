@@ -10,7 +10,8 @@ const generateToken = (id) => {
 
 // @desc    Register new user
 // @route   POST /api/auth/register
-exports.register = async (req, res) => {
+// FIX: Function ka naam 'register' se badal kar 'registerUser' kiya
+exports.registerUser = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
 
@@ -46,7 +47,8 @@ exports.register = async (req, res) => {
 
 // @desc    Login user
 // @route   POST /api/auth/login
-exports.login = async (req, res) => {
+// FIX: Function ka naam 'login' se badal kar 'loginUser' kiya
+exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 

@@ -1,37 +1,29 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './AuthPages.css';
 
 function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const result = await login(formData);
+    const result = await login({ email, password });
 
     if (result.success) {
-      navigate('/dashboard');
+      // ✅ SUCCESS: Popup aur Force Redirect
+      alert("Login Successful! Redirecting...");
+      window.location.href = '/dashboard'; 
     } else {
-      setError(result.error);
+      setError(result.message);
       setLoading(false);
     }
   };
@@ -46,20 +38,15 @@ function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && (
-            <div className="alert alert-danger">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-danger">{error}</div>}
 
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <input
               type="email"
-              name="email"
               className="form-input"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
             />
@@ -69,16 +56,18 @@ function LoginPage() {
             <label className="form-label">Password</label>
             <input
               type="password"
-              name="password"
               className="form-input"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
             />
+            <div className="forgot-password">
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </div>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
@@ -89,8 +78,10 @@ function LoginPage() {
       </div>
 
       <div className="auth-illustration">
-        <h2>Continue Your Journey</h2>
-        <p>Pick up right where you left off with your personalized study abroad plan.</p>
+        <div className="illustration-content">
+          <h2>Continue Your Journey</h2>
+          <p>Pick up right where you left off with your personalized study abroad plan.</p>
+        </div>
       </div>
     </div>
   );

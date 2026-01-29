@@ -1,85 +1,77 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-  // Set axios default header
+  // App start hone par user load karo
+  // Load or refresh user whenever token changes
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
+    const loadUser = async () => {
+      setLoading(true);
+      if (token) {
+        try {
+          const { data } = await authAPI.loadUser();
+          setUser(data);
+        } catch (error) {
+          console.error("Load User Failed:", error);
+          localStorage.removeItem('token');
+          setToken(null);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    };
+    loadUser();
   }, [token]);
 
-  // Load user on mount
-  useEffect(() => {
-    if (token) {
-      loadUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const loadUser = async () => {
+  // Login Function
+  const login = async (credentials) => {
     try {
-      const response = await axios.get(`${API_URL}/auth/me`);
-      setUser(response.data.user);
-    } catch (error) {
-      console.error('Load user error:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      const response = await axios.post(`${API_URL}/auth/register`, userData);
-      const { token: newToken, user: newUser } = response.data;
+      console.log('🔐 Logging in...');
+      const response = await authAPI.login(credentials);
       
+      const { token: newToken, ...userData } = response.data;
+
+      // Save Token & User
       localStorage.setItem('token', newToken);
       setToken(newToken);
-      setUser(newUser);
-      
+      setUser(userData);
+
+      console.log('✅ Login Success!');
       return { success: true };
     } catch (error) {
+      console.error('❌ Login Failed:', error.response?.data?.message);
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Registration failed' 
+        message: error.response?.data?.message || 'Server Error' 
       };
     }
   };
 
-  const login = async (credentials) => {
+  // Register Function
+  const register = async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, credentials);
-      const { token: newToken, user: newUser } = response.data;
-      
+      const response = await authAPI.register(userData);
+      const { token: newToken, ...newUserData } = response.data;
+
       localStorage.setItem('token', newToken);
       setToken(newToken);
-      setUser(newUser);
-      
+      setUser(newUserData);
+
       return { success: true };
     } catch (error) {
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Login failed' 
+        message: error.response?.data?.message || 'Registration Failed' 
       };
     }
   };
@@ -88,21 +80,27 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    window.location.href = '/login';
   };
 
-  const value = {
-    user,
-    loading,
-    register,
-    login,
-    logout,
-    isAuthenticated: !!user,
-    token
+  // Refresh user data from server (useful after profile updates)
+  const refreshUser = async () => {
+    if (!token) return null;
+    try {
+      const { data } = await authAPI.loadUser();
+      setUser(data);
+      return data;
+    } catch (err) {
+      console.error('Refresh user failed', err);
+      return null;
+    }
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
+    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, loading, isAuthenticated: !!token }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthContext;

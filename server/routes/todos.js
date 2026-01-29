@@ -1,18 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getToDos,
-  createToDo,
-  updateToDo,
-  toggleToDo,
-  deleteToDo
-} = require('../controllers/todoController');
-const { protect, requireOnboarding } = require('../middleware/auth');
+const { protect } = require('../middleware/authMiddleware');
+const { getToDos, createToDo, updateToDo, deleteToDo, autoGenerateTasks } = require('../controllers/todoController');
 
-router.get('/', protect, requireOnboarding, getToDos);
-router.post('/', protect, requireOnboarding, createToDo);
-router.put('/:id', protect, requireOnboarding, updateToDo);
-router.put('/:id/toggle', protect, requireOnboarding, toggleToDo);
-router.delete('/:id', protect, requireOnboarding, deleteToDo);
+router.route('/').get(protect, getToDos).post(protect, createToDo);
+router.route('/:id').put(protect, updateToDo).delete(protect, deleteToDo);
+router.post('/auto-generate', protect, autoGenerateTasks);
 
+// 🚨 YE LINE HONI CHAHIYE
 module.exports = router;

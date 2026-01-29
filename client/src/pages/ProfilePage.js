@@ -49,8 +49,19 @@ function ProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const response = await profileAPI.get();
-      setFormData(response.data.profile);
+      const response = await profileAPI.getProfile();
+      const profile = response?.data?.profile || {};
+      setFormData(prev => ({
+        ...prev,
+        ...profile,
+        // Merge nested objects to preserve defaults when API returns partial data
+        ielts: { ...(prev.ielts || {}), ...(profile.ielts || {}) },
+        toefl: { ...(prev.toefl || {}), ...(profile.toefl || {}) },
+        gre: { ...(prev.gre || {}), ...(profile.gre || {}) },
+        gmat: { ...(prev.gmat || {}), ...(profile.gmat || {}) },
+        budgetPerYear: { ...(prev.budgetPerYear || {}), ...(profile.budgetPerYear || {}) },
+        preferredCountries: Array.isArray(profile.preferredCountries) ? profile.preferredCountries : (prev.preferredCountries || [])
+      }));
     } catch (error) {
       console.error('Load profile error:', error);
     } finally {

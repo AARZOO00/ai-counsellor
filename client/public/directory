@@ -1,7 +1,0 @@
-# Run in client/public/ directory
-New-Item -ItemType File -Path "index.html" -Force
-New-Item -ItemType File -Path "manifest.json" -Force
-New-Item -ItemType File -Path "robots.txt" -Force
-
-Write-Host "✅ Public folder files created!"
-Write-Host "Now copy the code from above into each file"

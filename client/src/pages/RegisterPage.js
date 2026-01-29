@@ -17,29 +17,18 @@ function RegisterPage() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
+      return setError('Passwords do not match');
     }
 
     setLoading(true);
-
     const result = await register({
       fullName: formData.fullName,
       email: formData.email,
@@ -47,15 +36,17 @@ function RegisterPage() {
     });
 
     if (result.success) {
-      navigate('/onboarding');
+      alert("Account Created Successfully!");
+      navigate('/dashboard');
     } else {
-      setError(result.error);
+      setError(result.message || 'Registration failed');
       setLoading(false);
     }
   };
 
   return (
     <div className="auth-page">
+      {/* LEFT SIDE: FORM */}
       <div className="auth-container">
         <div className="auth-header">
           <Link to="/" className="back-link">← Back to Home</Link>
@@ -64,66 +55,30 @@ function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && (
-            <div className="alert alert-danger">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-danger">{error}</div>}
 
           <div className="form-group">
             <label className="form-label">Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              className="form-input"
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder="John Doe"
-              required
-            />
+            <input type="text" name="fullName" className="form-input" value={formData.fullName} onChange={handleChange} placeholder="John Doe" required />
           </div>
 
           <div className="form-group">
             <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              className="form-input"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-              required
-            />
+            <input type="email" name="email" className="form-input" value={formData.email} onChange={handleChange} placeholder="your@email.com" required />
           </div>
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              name="password"
-              className="form-input"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Min. 6 characters"
-              required
-            />
+            <input type="password" name="password" className="form-input" value={formData.password} onChange={handleChange} placeholder="Min. 6 characters" required />
           </div>
 
           <div className="form-group">
             <label className="form-label">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              className="form-input"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter password"
-              required
-            />
+            <input type="password" name="confirmPassword" className="form-input" value={formData.confirmPassword} onChange={handleChange} placeholder="Re-enter password" required />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
-            {loading ? 'Creating Account...' : 'Create Account'}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Account'}
           </button>
         </form>
 
@@ -132,21 +87,39 @@ function RegisterPage() {
         </div>
       </div>
 
+      {/* RIGHT SIDE: CREATIVE DESIGN 🎨 */}
       <div className="auth-illustration">
-        <h2>Join Thousands of Students</h2>
-        <p>Get personalized AI guidance for your study abroad journey.</p>
-        <div className="stats">
-          <div className="stat-item">
-            <h3>500+</h3>
-            <p>Universities</p>
-          </div>
-          <div className="stat-item">
-            <h3>50+</h3>
-            <p>Countries</p>
-          </div>
-          <div className="stat-item">
-            <h3>95%</h3>
-            <p>Success Rate</p>
+        {/* Background Circles for decoration */}
+        <div className="circle circle-1"></div>
+        <div className="circle circle-2"></div>
+
+        <div className="illustration-content">
+          <h2>Join the Future of <br/> Study Abroad</h2>
+          <p>AI-powered guidance to get you into your dream university.</p>
+          
+          {/* Floating Glass Cards */}
+          <div className="features-grid">
+            <div className="glass-card">
+              <span className="icon">🎓</span>
+              <div>
+                <strong>500+</strong>
+                <span>Universities</span>
+              </div>
+            </div>
+            <div className="glass-card">
+              <span className="icon">🤖</span>
+              <div>
+                <strong>AI</strong>
+                <span>Counsellor</span>
+              </div>
+            </div>
+            <div className="glass-card">
+              <span className="icon">🚀</span>
+              <div>
+                <strong>95%</strong>
+                <span>Success Rate</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

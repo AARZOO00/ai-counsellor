@@ -1,49 +1,26 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
+// Note: Is file mein ab koi BCRYPT ya Encryption logic nahi hai.
+// Yeh bilkul simple storage file hai.
+
+const userSchema = mongoose.Schema({
   fullName: {
     type: String,
     required: true,
-    trim: true
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
-    trim: true
   },
   password: {
     type: String,
     required: true,
-    minlength: 6
   },
-  onboardingCompleted: {
-    type: Boolean,
-    default: false
-  },
-  currentStage: {
-    type: String,
-    enum: ['building_profile', 'discovering_universities', 'finalizing_universities', 'preparing_applications'],
-    default: 'building_profile'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+}, {
+  timestamps: true,
 });
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+const User = mongoose.model('User', userSchema);
 
-// Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

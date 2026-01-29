@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import './OnboardingPage.css';
 
 function OnboardingPage() {
@@ -48,6 +49,7 @@ function OnboardingPage() {
   });
 
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,12 +98,46 @@ function OnboardingPage() {
     e.preventDefault();
     setLoading(true);
 
+    // Basic client-side validation for required onboarding fields
+    if (!formData.currentEducationLevel) {
+      setLoading(false);
+      alert('Please complete Academic Background (step 1).');
+      setStep(1);
+      return;
+    }
+
+    if (!formData.intendedDegree) {
+      setLoading(false);
+      alert('Please complete Study Goals (step 2) and select an intended degree.');
+      setStep(2);
+      return;
+    }
+
+    if (!formData.fundingPlan) {
+      setLoading(false);
+      alert('Please complete Budget & Funding (step 3) and select a funding plan.');
+      setStep(3);
+      return;
+    }
+
+    // Ensure user is logged in (token present)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      alert('You must be logged in to complete onboarding. Redirecting to login.');
+      return navigate('/login');
+    }
+
     try {
       await profileAPI.create(formData);
+      // Refresh authenticated user so `onboardingCompleted` (or similar) becomes available
+      await refreshUser();
       navigate('/dashboard');
     } catch (error) {
       console.error('Onboarding error:', error);
-      alert('Failed to complete onboarding. Please try again.');
+      // Show more informative message when available
+      const serverMessage = error.response?.data?.message || error.response?.data || error.message;
+      alert(`Failed to complete onboarding. ${serverMessage}`);
       setLoading(false);
     }
   };

@@ -1,60 +1,15 @@
 const mongoose = require('mongoose');
 
-const universitySchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  // University Details
-  name: {
-    type: String,
-    required: true
-  },
-  country: {
-    type: String,
-    required: true
-  },
-  program: String,
-  
-  // Categorization
-  category: {
-    type: String,
-    enum: ['Dream', 'Target', 'Safe'],
-    required: true
-  },
-  
-  // Metrics
-  tuitionFee: Number,
-  acceptanceRate: Number,
-  requiredGPA: Number,
-  requiredIELTS: Number,
-  
-  // AI Analysis
-  whyFits: String,
-  risks: [String],
-  costLevel: {
-    type: String,
-    enum: ['Low', 'Medium', 'High']
-  },
-  acceptanceChance: {
-    type: String,
-    enum: ['Low', 'Medium', 'High']
-  },
-  
-  // Status
-  status: {
-    type: String,
-    enum: ['Recommended', 'Shortlisted', 'Locked', 'Rejected'],
-    default: 'Recommended'
-  },
-  
-  lockedAt: Date,
-  
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+const UniversitySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  country: { type: String, required: true },
+  ranking: { type: Number },
+  programs: [String],
+  tuitionFees: { type: String },  // String rakhein taaki "$50,000" likh sakein
+  acceptanceRate: { type: String }, // String rakhein taaki "5%" likh sakein (Error yahan tha)
+  location: { type: String },
+  website: { type: String },
+  category: { type: String, enum: ['Dream', 'Target', 'Safe'], default: 'Target' }
 });
 
-module.exports = mongoose.model('University', universitySchema);
+module.exports = mongoose.model('University', UniversitySchema);

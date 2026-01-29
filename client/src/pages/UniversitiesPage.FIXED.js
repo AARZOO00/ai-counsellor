@@ -7,8 +7,8 @@ import './UniversitiesPage.css';
 function UniversitiesPage() {
   const { user, logout } = useAuth();
   const [universities, setUniversities] = useState([]);
-  const [filter, setFilter] = useState('all'); // all, recommended, shortlisted, locked
-  const [categoryFilter, setCategoryFilter] = useState('all'); // all, Dream, Target, Safe
+  const [filter, setFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState(null);
@@ -159,6 +159,7 @@ function UniversitiesPage() {
     }
   };
 
+  // ✅ FIX: Filter logic with safe guards
   const filteredUniversities = (universities || []).filter(uni => {
     if (!uni) return false;
     
@@ -172,6 +173,7 @@ function UniversitiesPage() {
     return true;
   });
 
+  // ✅ FIX: Compute stats safely
   const stats = {
     total: (universities || []).length,
     recommended: (universities || []).filter(u => (u?.status || 'Recommended') === 'Recommended').length,

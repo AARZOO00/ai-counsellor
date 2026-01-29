@@ -5,7 +5,7 @@ import axios from "axios";
 ====================================== */
 
 // 🔥 IMPORTANT: Abhi hum Localhost use karenge taaki login chal jaye
-const API_URL = "http://localhost:5001/api"; 
+const API_URL = "https://ai-counsellor-vozd.onrender.com/api";
 
 const api = axios.create({
   baseURL: API_URL,

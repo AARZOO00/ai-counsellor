@@ -4,8 +4,27 @@ import axios from "axios";
    1. SERVER CONNECTION SETUP
 ====================================== */
 
-// 🔥 IMPORTANT: Abhi hum Localhost use karenge taaki login chal jaye
-const API_URL = "https://ai-counsellor-vozd.onrender.com/api";
+// Determine API URL based on environment
+const getAPIURL = () => {
+  // In production (Vercel), use environment variable
+  if (process.env.REACT_APP_API_URL) {
+    console.log('[API] Using REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Production default: Render backend
+  if (process.env.NODE_ENV === 'production') {
+    const url = 'https://ai-counsellor-vosd.onrender.com/api';
+    console.log('[API] Using production backend:', url);
+    return url;
+  }
+  
+  // Development: localhost
+  console.log('[API] Using development localhost');
+  return 'http://localhost:5001/api';
+};
+
+const API_URL = getAPIURL();
 
 const api = axios.create({
   baseURL: API_URL,
@@ -71,12 +90,17 @@ export const counsellorAPI = {
       },
     },
   }),
+  recommend: async () => api.post("/counsellor/recommend"),
   sendMessage: async (message) => api.post("/counsellor/chat", { message }),
 };
 
 // Universities API
 export const universitiesAPI = {
   getAll: async () => api.get("/universities"),
+  shortlist: async (id) => api.post(`/universities/${id}/shortlist`),
+  lock: async (id) => api.post(`/universities/${id}/lock`),
+  unlock: async (id) => api.post(`/universities/${id}/unlock`),
+  remove: async (id) => api.post(`/universities/${id}/remove`),
 };
 
 // Todos API

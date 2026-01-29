@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const todoSchema = new mongoose.Schema({
   userId: {
@@ -36,6 +36,5 @@ const todoSchema = new mongoose.Schema({
   }
 });
 
-// ESM default export use karein
 const ToDo = mongoose.model('ToDo', todoSchema);
-export default ToDo;
+module.exports = ToDo;

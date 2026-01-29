@@ -13,32 +13,39 @@ const generateToken = (id) => {
 // 1. REGISTER (Manual Hashing)
 router.post('/register', async (req, res) => {
   const { fullName, email, password } = req.body;
+  
+  // Input validation
+  if (!fullName || !email || !password) {
+    return res.status(400).json({ message: 'fullName, email, and password are required' });
+  }
+
   try {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    // 🔥 Password Encryption YAHAN hoga
+    // 🔥 Password Encryption
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
       fullName,
       email,
-      password: hashedPassword // Encrypted password bheja
+      password: hashedPassword
     });
 
     if (user) {
       console.log("✅ User Created:", email);
+      const token = generateToken(user._id);
       res.status(201).json({
         _id: user.id,
         fullName: user.fullName,
         email: user.email,
-        token: generateToken(user._id),
+        token: token,
       });
     }
   } catch (error) {
-    console.error("Register Error:", error);
-    res.status(500).json({ message: error.message });
+    console.error("Register Error:", error.message);
+    res.status(500).json({ message: 'Registration failed. Please try again.' });
   }
 });
 
